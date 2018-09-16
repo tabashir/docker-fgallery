@@ -1,48 +1,21 @@
-FROM ubuntu:trusty
+FROM ubuntu:precise
 
-RUN apt-get -y update && apt-get -y install \
-  p7zip \
-  unzip \
-  unp \
-  fish \
-  wget \
-  git \
-  python3 \
-  python3-gst-1.0 \
-  python3-numpy \
-  python3-genshi \
-  python3-pillow \
-  python-libxslt1 \
-  python-opencv \
-  imagemagick \
-  exiftran zip \
-  liblcms2-utils \
-  libimage-exiftool-perl \
-  libjson-perl \
-  libjson-xs-perl \
-  jpegoptim \
-  pngcrush \
-  libopencv-dev \
-  gstreamer1.0-plugins-base \
-  gstreamer1.0-plugins-good \
-  gir1.2-gstreamer-1.0 \
-  gir1.2-gst-plugins-base-1.0 \
-  libgexiv2-2 \
-  libgexiv2-dev \
-  liblocale-msgfmt-perl \
-  xsltproc \
-  gettext
+RUN apt-get -y update
+RUN apt-get -y install imagemagick exiftran zip liblcms2-utils libimage-exiftool-perl libjson-perl libjson-xs-perl jpegoptim pngcrush p7zip python-opencv libopencv-dev unp unzip fish wget python-numpy
 
-WORKDIR /gallery/
-ARG LAZYGAL_VERSION=0.9.2
-RUN wget https://sml.zincube.net/~niol/repositories.git/lazygal/snapshot/lazygal-${LAZYGAL_VERSION}.tar.bz2 
-RUN tar jxvf lazygal-${LAZYGAL_VERSION}.tar.bz2
-RUN mv lazygal-${LAZYGAL_VERSION} lazygal
-RUN mkdir files
+RUN wget --no-check-certificate http://www.thregr.org/~wavexx/software/fgallery/releases/fgallery-LATEST.zip
+RUN unp fgallery-LATEST.zip
+RUN rm fgallery-LATEST.zip
+RUN mv fgallery-* fgallery
 
-# VOLUME ["/gallery/files/"]
+VOLUME ["/fgallery/gallery/"]
+WORKDIR /fgallery/
 
-ADD run_conversion.sh /gallery/run_conversion.sh
-RUN chmod +x /gallery/run_conversion.sh
+RUN wget --no-check-certificate https://github.com/wavexx/facedetect/archive/master.zip
+RUN unzip -p master.zip facedetect-master/facedetect > /usr/bin/facedetect
+RUN chmod +x /usr/bin/facedetect
 
-CMD ["/gallery/run_conversion.sh" ]
+ADD run_conversion.sh /fgallery/run_conversion.sh
+RUN chmod +x /fgallery/run_conversion.sh
+
+CMD ["/fgallery/run_conversion.sh" ]
